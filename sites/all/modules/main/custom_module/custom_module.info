@@ -1,0 +1,5 @@
+name = "Custom module"
+description = "Custom module for Drupal class"
+core = "7.x"
+files[] = custom_module.module
+files[] = custom_module.forms.inc.module
