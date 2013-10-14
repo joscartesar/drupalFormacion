@@ -1,0 +1,29 @@
+<?php
+
+/**
+ * Implements hook_menu().
+ */
+function custom_module_menu(){
+  $items = array(
+    'my-custom-form' => array(
+      'page callback' => 'drupal_get_form',
+      'page arguments' => array('custom_module_my_custom_form'),
+      'access callback' => 'user_access',
+      'access arguments' => array('access to my custom form'),
+      'file' => 'custom_module.forms.inc',
+    ),
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function custom_module_permission() {
+  return array(
+    'access to my custom form' => array(
+      'title' => t('Access to my custom form'),
+      'description' => t('Determine access to submit the custom form'),
+    ),
+  );
+}
