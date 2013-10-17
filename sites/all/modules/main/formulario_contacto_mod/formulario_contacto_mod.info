@@ -1,0 +1,5 @@
+name = Mod Contact Form
+description = "Perfoms some modifications to default contact form."
+package = Pro Drupal Development
+core = 7.x
+files[] = formulario_contacto_mod.module

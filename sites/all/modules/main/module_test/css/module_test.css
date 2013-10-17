@@ -1,0 +1,7 @@
+/**
+ * @file CSS style for module_test module
+ */
+
+div.this-is-a-class {
+  color: red;
+}

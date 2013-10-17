@@ -1,0 +1,67 @@
+<?php
+
+/**
+ * @file Implementation of hooks for "module_test"
+ */
+
+/**
+ * Implements hook_menu()
+ */
+function module_test_menu() {
+  $items['esta/es/mi/url/%'] = array(
+    'title' => 'This is my page',
+    'page callback' => 'module_test_my_page_callback',
+    'page arguments' => array(4),
+    'access callback' => 'user_access',
+    'access arguments' => array('enter into my url'),
+    'type' => MENU_CALLBACK,
+  );
+
+  return $items;
+}
+
+function module_test_permission() {
+  return array(
+    'enter into my url' => array(
+        'title' => 'enter into my url',
+    ),
+  );
+}
+
+/**
+ * Implements hook_theme()
+ */
+function module_test_theme($existing, $type, $theme, $path) {
+  return array(
+    'my_page' => array(
+      'path' => drupal_get_path('module', 'module_test'). '/tpl',
+      'template' => 'my_page',
+      'variables' => array(
+        'text' => NULL,
+      ),
+    ),
+  );
+}
+
+/**
+ * Custom callback for hook_menu entry
+ */
+function module_test_my_page_callback($arguments = NULL) {
+  $output = array('text' => t('Hello !name, whassup!!!', array('!name' => $arguments)));
+
+/*Example of SQL injection vulnerability
+  $output = array();
+  $sql = "SELECT title FROM {node} WHERE nid = " . $arguments;
+  $result = db_query($sql);
+  $output['text'] = "";
+  foreach ($result as $record) {
+    $output['text'].= $record->title;
+  }
+*/
+  drupal_add_js(array('module_test' => array('variable' => 'value')), 'setting');
+
+  drupal_add_js(drupal_get_path('module', 'module_test'). '/js/module_test.js', 'file');
+  drupal_add_css(drupal_get_path('module', 'module_test'). '/css/module_test.css');
+
+  return theme('my_page', $output);
+}

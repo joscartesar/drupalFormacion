@@ -1,0 +1,116 @@
+<?php
+
+function formulario_contacto_mod_menu() {
+  $items = array(
+    'my-form' => array(
+      'page callback' => 'drupal_get_form',
+      'page arguments'=> array('formulario_contacto_mod_my_form'),
+      'access callback' => TRUE, //'user_access',
+//      'access arguments' => array('view content'),
+    ),
+  );
+
+  return $items;
+}
+
+function formulario_contacto_mod_my_form() {
+  $form = array();
+
+  $data = variable_get('my_form_variable', array());
+  $form['fieldset'] = array(
+    '#type' => 'fieldset',
+    '#title' => 'My fieldset',
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+  );
+
+  $form['fieldset']['hola'] = array(
+    '#title' => 'Textfield',
+    '#prefix' => '<div class="clase_prefix_sufix">',
+    '#type' => 'textfield',
+    '#default_value' => array_key_exists('hola', $data) ? $data['hola'] : 'hola',
+    '#suffix' => '</div>',
+    '#required' => TRUE,
+  );
+
+  $form['fieldset']['machinen'] = array(
+    '#type' => 'machine_name',
+    '#title' => t("Machine Name"),
+    '#required' => TRUE,
+    '#description' => t("machine-friendly name."),
+    '#default_value' => "",
+    '#machine_name' => array(
+      'exists' => 'check_machine_name_if_exist',  // function that return 1 if the machine name is duplicated
+      'source' => array('fieldset', 'hola'),   // the name of the source field
+      ),
+  );
+
+  $form['fieldset']['textarea'] = array(
+    '#title' => 'Textarea',
+    '#type' => 'textarea',
+    '#default_value' => 'default',
+    '#rows' => 4,
+    '#cols' => 3,
+  );
+
+  $ext = array('jpg');
+  $form['fieldset']['upload'] = array(
+    '#type' => 'managed_file',
+    '#title' => t('Upload a picture'),
+    '#description' => t('Allowed extensions: !extensions', array('!extensions' => implode(',', $ext))),
+    '#upload_validators' => array(
+      'file_validate_extensions' => $ext,
+      'file_validate_size' => array(2*1024*1024),
+    ),
+  );
+
+  $form['fieldset']['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Send'),
+  );
+
+
+  return $form;
+}
+
+function formulario_contacto_mod_my_form_validate($form, &$form_state) {
+  if (is_numeric($form_state['values']['hola'])) {
+    form_set_error('hola', t('Enter a string'));
+  }
+
+  return $form;
+}
+
+function formulario_contacto_mod_my_form_submit($form, $form_state) {
+  $data = array(
+    'hola' => check_plain($form_state['values']['hola']),
+    'textarea' => check_plain($form_state['values']['textarea']),
+  );
+  variable_set('my_form_variable', $data);
+}
+
+function formulario_contacto_mod_form_alter(&$form, $form_state, $form_id) {
+  if ($form_id == "contact_site_form") {
+    if (!user_is_anonymous()) {
+      $form['surname'] = array(
+        '#title' => t('Your surname'),
+        '#type' => 'textfield',
+        '#required' => TRUE,
+        '#maxlength' => 255,
+        '#weight' => 0,
+      );
+      $form['telephone'] = array(
+        '#title' => t('Your telephone'),
+        '#type' => 'textfield',
+        '#required' => TRUE,
+        '#maxlength' => 9,
+        '#weight' => 1,
+      );
+    }
+  }
+}
+
+function formulario_contacto_mod_mail_alter(&$message) {
+  $message['params']['message'] = "Your contact telephone: ". $message['params']['telephone']. "\n". $message['params']['message'];
+//  print '<pre>'; print_r($message); print '</pre>'; exit();
+}

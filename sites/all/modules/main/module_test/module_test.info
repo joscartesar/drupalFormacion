@@ -1,0 +1,7 @@
+name = Module Test
+core = 7.x
+version = "7.x-1.0"
+description = Module which is used as an example
+project = "Clases de Drupal"
+
+dependencies[] = views
