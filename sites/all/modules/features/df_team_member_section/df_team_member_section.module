@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the df_team_member_section feature.
+ */
+
+include_once 'df_team_member_section.features.inc';
