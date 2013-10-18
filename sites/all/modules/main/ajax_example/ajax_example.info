@@ -1,0 +1,5 @@
+name = AJAX example
+core = 7.x
+version = "7.x-1.0"
+description = Module which shows some ajax example usage
+project = "Clases de Drupal"

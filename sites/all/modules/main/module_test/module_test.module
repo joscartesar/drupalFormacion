@@ -20,6 +20,9 @@ function module_test_menu() {
   return $items;
 }
 
+/**
+ * Implements hook_permission()
+ */
 function module_test_permission() {
   return array(
     'enter into my url' => array(
