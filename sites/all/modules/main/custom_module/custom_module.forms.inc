@@ -24,6 +24,23 @@ function custom_module_my_custom_form(){
     '#suffix' => '</div>',
   );
 
+  // Text with machine-name:
+  $form['text_source'] = array(
+    '#required' => TRUE,
+    '#type' => 'textfield',
+    '#default_value' => array_key_exists('text_source', $data) ? $data['text_source'] : '',
+  );
+
+   // Machine-name input:
+  $form['text_source_machine'] = array(
+    '#type' => 'machine_name',
+    '#default_value' => '',
+    '#machine_name' => array(
+      'exists' => '_custom_module_text_source_machine_exists', // Check if this value exists
+      'source' => array('text_source'), // Input text as source
+    ),
+  );
+
   // Textarea
   $form['body'] = array(
     '#type' => 'textarea',
@@ -31,6 +48,12 @@ function custom_module_my_custom_form(){
     '#rows' => 4,
     '#cols' => 3,
     );
+
+  $form['image_file'] = array(
+    '#type' => 'file',
+    '#title' => t('Image file'),
+    '#description' => t('Allowed extensions: gif png jpg jpeg'),
+  );
 
   // Submit button:
   $form['submit'] = array(
@@ -49,6 +72,19 @@ function custom_module_my_custom_form_validate(&$form, &$form_state) {
     // Show error :
     form_set_error('subject', t('Enter a string'));
   }
+  // Validate and save this file:
+  $validators = array(
+    'file_validate_extensions' => array('jpeg jpg gif tiff png'),
+    'file_validate_size' => array(file_upload_max_size()),
+  );
+  $dest = 'public://'; // File destine
+  if ($file = file_save_upload('image_file', $validators, $dest)) {
+    // Save the $file at $form_state
+    $form_state['values']['image_file'] = $file;
+    // Set as PERMANENT this file:
+    $file->status = FILE_STATUS_PERMANENT;
+    file_save($file);
+  }
 }
 
 /**
@@ -66,4 +102,19 @@ function custom_module_my_custom_form_submit($form, $form_state) {
 
   // Success message:
   drupal_set_message(t('Your form data has been saved correctly'));
+}
+
+# # # # # # # # # # # # # #
+# # AUXILIARY FUNCTIONS # #
+# # # # # # # # # # # # # #
+
+/**
+ * Check if text_source_machine_name exists.
+ */
+function _custom_module_text_source_machine_exists($element, &$form_state) {
+  $exists = FALSE;
+  if ($element == '1234') {
+    $exists = TRUE;
+  }
+  return $exists;
 }
