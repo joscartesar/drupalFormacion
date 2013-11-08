@@ -1,0 +1,106 @@
+<?php
+/**
+ * @file Exercise:
+ *       - Define a new attribute (checkbox) for every content type
+ *       - Store its value in the table 'variable'
+ *       - Define a new path for a page
+ *       - Define a new permission to access the path
+ *       - Use theme('table', ...) to render the content
+ *       - Show a list of nodes if its content type has checked the new
+ *         attribute defined by us
+ */
+
+/**
+ * Implements hook_form_alter()
+ */
+function node_train_list_form_node_type_form_alter(&$form, &$form_state, $form_id) {
+  $data = variable_get('node_type_form_variable', array());
+
+  $form['node_listing'] = array(
+    '#title' => t('Node listing settings'),
+    '#type' => 'fieldset',
+    '#collapsible' => TRUE,
+    '#group' => 'additional_settings',
+  );
+  $form['node_listing']['node_check'] = array(
+    '#title' => t('Show this type in listings'),
+    '#type' => 'checkbox',
+    '#description' => t('Check this if you want this node type to appear in listings.'),
+    '#default_value' => array_key_exists($form['type']['#default_value'], $data) ? 1 : 0,
+  );
+
+  $form['#submit'][] = 'node_train_list_node_type_form_submit';
+}
+
+/**
+ * Implements node_type_form submit
+ */
+function node_train_list_node_type_form_submit($form, &$form_state) {
+  $data = variable_get('node_type_form_variable', array());
+
+  if ($form_state['values']['node_check'] == 1) {
+    if (!array_key_exists($form_state['values']['type'], $data)) {
+      $data[$form_state['values']['type']] = $form_state['values']['type'];
+    }
+  }
+  else {
+    if (array_key_exists($form_state['values']['type'], $data)) {
+      unset($data[$form_state['values']['type']]);
+    }
+  }
+  variable_set('node_type_form_variable', $data);
+}
+
+/**
+ * Implements hook_permission()
+ */
+function node_train_list_permission() {
+  $permission = array(
+    'view_node_list' => array(
+      'title' => t('View node list page'),
+      'description' => t('Grant access to the page.'),
+    ),
+  );
+
+  return $permission;
+}
+
+/**
+ * Implements hook_menu()
+ */
+function node_train_list_menu() {
+  $items['node-train-list'] = array(
+    'title' => 'Node train list',
+    'page callback' => 'node_train_list_page_callback',
+    'access callback' => 'user_access',
+    'access arguments' => array('view_node_list'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+
+  return $items;
+}
+
+/**
+ * Custom callback for hook_menu entry
+ */
+function node_train_list_page_callback() {
+  $header = array(
+    array('data' => t('Node title')),
+    array('data' => t('Content type')),
+  );
+
+  $content_types = variable_get('node_type_form_variable', array());
+
+  $sql = "SELECT title, type FROM {node} WHERE type IN (:values)";
+  $result = !empty($content_types) ? db_query($sql, array(':values' => $content_types)) : array();
+
+  $rows = array();
+  foreach ($result as $row) {
+    $rows[] = array(
+      array('data' => t($row->title)),
+      array('data' => t($row->type)),
+    );
+  }
+
+  return theme('table', array('header' => $header, 'rows' => $rows, 'caption' => t('Nodes whose content type have enabled node listing.')));
+}

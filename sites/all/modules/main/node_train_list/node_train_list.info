@@ -1,0 +1,6 @@
+name = Node tranining list
+description = Test showing a list of nodes
+core = 7.x
+
+package = Test Drupal Formacion
+files[] = node_train_list.module
