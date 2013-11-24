@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Drupal Formacion Rules feature.
+ */
+
+include_once 'drupal_formacion_rules.features.inc';
