@@ -1,0 +1,6 @@
+name = Blocks lesson
+description = Create some blocks
+core = 7.x
+
+package = Test Drupal Formacion
+files[] = df_blocks.module
